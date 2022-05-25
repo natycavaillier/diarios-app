@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "diario-viagens-c4d6b": {
+      "hosting": {
+        "diarios-app": [
+          "diario-viagens-c4d6b"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "diario-viagens-c4d6b"
+  }
+}
