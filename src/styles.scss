@@ -2,3 +2,23 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.form-wrapper {
+    padding: 16px;
+}
+
+form {
+    text-align: center;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-center;
+    border: 1px solid rgb(127, 127, 127);
+    width: 20%;
+    margin: 5rem auto;
+    border-radius: 20px;
+}
+
+.textoPequenoForm {
+    margin: 1rem;
+}
