@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { collectionData, docData, Firestore, where } from '@angular/fire/firestore';
-import { addDoc, collection, doc, query } from '@firebase/firestore';
-import { from, Observable, switchMap } from 'rxjs';
+import { addDoc, collection, deleteDoc, doc, query, updateDoc } from '@firebase/firestore';
+import { first, from, Observable, switchMap } from 'rxjs';
 import { Diario, DiarioConverter } from '../../models/diario';
 import { AuthService } from '../auth/auth.service';
 import { UploadService } from '../upload/upload.service';
@@ -27,11 +27,20 @@ export class DiariosService {
   }
 
   getDiariosUsuario(): Observable<Diario[]> {
-    return collectionData(
-      //Query = busca
-      query(this.diarios, where('usuarioId', '==', this.authService.uid)),
-      { idField: 'id' }
+    //Pega informações do usuário logado
+    return this.authService.logged.pipe(
+      //Apenas a primeira informação de user
+      first(),
+      //Cria um novo obs com base no filtro de user.uid
+      switchMap((user) => {
+        return collectionData(
+          //Query = busca
+          query(this.diarios, where('usuarioId', '==', user?.uid)),
+          { idField: 'id' }
+        );
+      })
     );
+
   }
 
   getDiarioById(id: string): Observable<Diario> {
@@ -67,4 +76,40 @@ export class DiariosService {
     );
   }
 
+  editDiario(diario: Diario, imagem?: File) {
+    const diarioDoc = doc(this.diarios, diario.id);
+    return this.uploadService
+      .upload(imagem, `diarios/${diario.usuarioId}`)
+      .pipe(
+        switchMap((url) => {
+          //Se nao passar imagem, ou seja se for nulo, passa a imagem usada anteriormente
+          return from(updateDoc(diarioDoc, { ...diario, imagem: url ?? diario.imagem })
+          );
+        })
+      );
+
+  }
+
+  deleteDiario(diario: Diario) {
+    const diarioDoc = doc(this.diarios, diario.id);
+    return from(deleteDoc(diarioDoc));
+  }
+
 }
+
+/**
+ * Como fazer uma query no firestore?
+ *
+ * 1) Determine a coleção para buscar os dados
+ * Ex: produtos = collection(this.db, 'produtos')
+ * Obs: Caso os documentos de produto possuírem data é importante
+ * utilizar um ProdutoConverter: Converter<Produto>.
+ *
+ * 2) Agora é necessário criar a query, pode fazer separadamente:
+ *
+ * const w = where('preco', '>=', 50.0); // produtos com preco maior ou igual a 50.0
+ * const q = query(this.produtos, w);
+ *
+ * return collectionData(q, { idField: 'id'})
+ *
+ */

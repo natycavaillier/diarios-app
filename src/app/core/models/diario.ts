@@ -22,8 +22,8 @@ export const DiarioConverter: Converter<Diario> = {
 
         return {
             ...obj, // Spread (Adiciona todas as propriedades de obj)
-            data: obj['data']?.date(), // Converte de FirestoreDate para Date
-            createdAt: obj['createdAt']?.date(),
+            data: obj['data']?.toDate(), // Converte de FirestoreDate para Date
+            createdAt: obj['createdAt']?.toDate(),
         } as Diario;
     }
 }
